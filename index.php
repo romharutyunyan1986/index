@@ -1,169 +1,55 @@
 <?php
+$servername = "mysql.ci.internal";
+$username 	= "webapp";
+$password 	= "Password01";
+$dbname		= "webapp";
 
-	if(isset($_GET['hostname']))
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+} 
 
-		die(`hostname`);
+// sql to create table
+$sql = "CREATE TABLE MyGuests (
+id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
+firstname VARCHAR(30) NOT NULL,
+lastname VARCHAR(30) NOT NULL,
+email VARCHAR(50),
+reg_date TIMESTAMP
+)";
 
+if ($conn->query($sql) === TRUE) {
+    echo "Table MyGuests created successfully";
+} else {
+    echo "Error creating table: " . $conn->error;
+}
 
+// sql to create a record
+$sql = "INSERT INTO MyGuests (firstname, lastname, email)
+VALUES ('John', 'Doe', 'john@example.com')";
 
-    /*
+if ($conn->query($sql) === TRUE) {
+    $last_id = $conn->insert_id;
+    echo "New record created successfully. Last inserted ID is: " . $last_id;
+} else {
+    echo "Error: " . $sql . "<br>" . $conn->error;
+}
 
-    Ensure the following variables are defined in /var/www or outside the document root.
+$sql = "SELECT id, firstname, lastname FROM MyGuests";
+$result = $conn->query($sql);
 
-
-
-    $database_hostname = "blah.asdf.us-east-1.rds.amazonaws.com";
-
-    $database_username = "root";
-
-    $database_password = "password";
-
-    $database = "myapp";
-
-    */
-
-
-
-    require("../credentials.php");
-
-
-
-    function m_error($link)
-
-    {
-
-        echo "Error, count not perform query!<br />";
-
-        echo "Error Message: " . mysqli_error($link);
-
+if ($result->num_rows > 0) {
+    // output data of each row
+    while($row = $result->fetch_assoc()) {
+        echo "id: " . $row["id"]. " - Name: " . $row["firstname"]. " " . $row["lastname"]. "<br>";
     }
+} else {
+    echo "0 results";
+}
 
+$conn->close();
 
-
-	$connection = mysqli_init();
-
-
-
-    if(!mysqli_real_connect($connection, $database_hostname, $database_username, $database_password, $database, 3306, NULL, MYSQLI_CLIENT_SSL))
-
-    {
-
-        echo "Could not connect to database!<br />";
-
-        echo "Error Number: " . mysqli_connect_errno() . "<br />";
-
-        echo "Error Message: " . mysqli_connect_error();
-
-
-
-        exit;
-
-    }
-
-
-
-    if(isset($_POST) && isset($_POST['message']))
-
-    {
-
-        $message = mysqli_real_escape_string($connection, $_POST['message']);
-
-        $query = "INSERT INTO `records` (`message`) VALUES('$message')";
-
-
-
-        if(!mysqli_query($connection, $query))
-
-        {
-
-            m_error($connection);
-
-            exit;
-
-        }
-
-    }
-
-
-
-    $query = "SELECT * FROM `records`";
-
-
-
-    if(!($result = mysqli_query($connection, $query)))
-
-    {
-
-        m_error($connection);
-
-        exit;
-
-    }
 
 ?>
-
-
-
-<html>
-
-<head>
-
-  <title>Hello!</title>
-
-</head>
-
-<body style="font-family: Verdana,Tahoma,sans-serif">
-
-    <h2>Welcome to MyApp! Post a message to the board using the form at the bottom!</h2>
-
-    <div style="border: 1px solid #BBB; padding: 5px; font-weight: bold; font-size: small">
-
-        Message Board
-
-    </div>
-
-    <div style="border-left: 1px solid #BBB; border-right: 1px solid #BBB; border-bottom: 1px solid #BBB; padding: 5px; font-size: small">
-
-    <?php
-
-        if(mysqli_num_rows($result) == 0)
-
-            echo "No records in database!";
-
-        else
-
-        {
-
-            while($row = mysqli_fetch_array($result, MYSQLI_ASSOC))
-
-                echo "{$row['message']}<br />";
-
-        }
-
-    ?>
-
-    </div>
-
-
-
-    <form name="message" action="index.php" method="POST" style="padding-top: 15px">
-
-        Message:<br />
-
-        <input type="text" name="message" style="length: 300px" />
-
-        <input type="submit" name="submit" value="Submit" />
-
-    </form>
-
-
-
-	<div style="font-size: small; font-size: small; font-color: #DDD">
-
-		Served from <?php echo `hostname`; ?>.
-
-	</div>
-
-</body>
-
-</html>
