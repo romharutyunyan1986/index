@@ -1,7 +1,7 @@
 <?php
 $servername = "mysql.ci.internal";
-$username 	= "webapp";
-$password 	= "Password01";
+$username 	= "USERNAME";
+$password 	= "PASSWORD";
 $dbname		= "webapp";
 
 // Create connection
